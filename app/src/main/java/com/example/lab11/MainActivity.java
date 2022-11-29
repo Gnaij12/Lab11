@@ -3,6 +3,7 @@ package com.example.lab11;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,7 +49,12 @@ public class MainActivity extends AppCompatActivity {
                             date.setText(datetime.substring(0,datetime.indexOf("T")));
                             String abbreviation = myJsonObject.getString("abbreviation");
                             time.setText(datetime.substring(datetime.indexOf("T")+1,datetime.indexOf(".")) + " " + abbreviation);
-                            day.setText(dayToString[myJsonObject.getInt("day_of_week")]);
+                            int dayOfWeek = myJsonObject.getInt("day_of_week");
+                            int percentWeek = (int)((dayOfWeek*1440 +
+                                    Integer.valueOf(datetime.substring(datetime.indexOf("T")+1,datetime.indexOf(":")))*60 +
+                                    Integer.valueOf(datetime.substring(datetime.indexOf(":")+1,datetime.indexOf(":",datetime.indexOf(":")+1)))
+                                    )/ 10080.0 * 100);
+                            day.setText(dayToString[dayOfWeek] + "\n" + percentWeek + "% done with week!");
                             String weeks = myJsonObject.getString("week_number");
                             String days = myJsonObject.getString("day_of_year");
                             numDaysWeeks.setText(weeks + " Weeks,\n" + days + " Days into Year");
@@ -61,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
-                        System.out.println("yo");
                         Toast.makeText(
                                 MainActivity.this,
                                 volleyError.getMessage(),
@@ -71,7 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 });
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(myRequest);
-
     }
 
+    public void update(View view) {
+        getData();
+    }
 }
